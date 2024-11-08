@@ -6,17 +6,19 @@
 
 declare module "react-native-default-preference" {
   declare export interface RNDefaultPreferenceKeys {
-    [key: string]: string;
+    [key: string]: string | number | boolean | string[] | null;
   }
+  
   declare export default class RNDefaultPreference {
-    static get(key: string): Promise<string | undefined | null>;
-    static set(key: string, value: string): Promise<void>;
+    static get(key: string): Promise<string | number | boolean | null>;
+    static set(key: string, value: string | number | boolean): Promise<void>;
     static clear(key: string): Promise<void>;
-    static getMultiple(keys: string[]): Promise<RNDefaultPreferenceKeys>;
+    static getMultiple(keys: string[]): Promise<Array<string | number | boolean | null>>;
     static setMultiple(data: RNDefaultPreferenceKeys): Promise<void>;
     static clearMultiple(keys: string[]): Promise<void>;
     static getAll(): Promise<RNDefaultPreferenceKeys>;
     static clearAll(): Promise<void>;
+
     static getName(): Promise<string>;
     static setName(name: string): Promise<void>;
   }
