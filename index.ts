@@ -48,13 +48,15 @@ class DefaultPreference {
     return RNDefaultPreference.setName(name);
   }
 
-  static addPreferenceListener(callback: (key: string, value: any) => void): { remove: () => void } {
+  // Add a listener for preference changes
+  static addPreferenceListener(callback: (key: string, value: any) => void) {
     const subscription = preferenceEmitter.addListener('onPreferenceChange', (event) => {
       callback(event.key, event.value);
     });
-    return { remove: () => subscription.remove() };
+    return subscription;
   }
 
+  // Remove a previously added listener
   static removePreferenceListener(subscription: { remove: () => void }): void {
     subscription.remove();
   }
