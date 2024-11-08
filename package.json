@@ -2,7 +2,7 @@
   "name": "react-native-default-preference",
   "version": "1.5.0",
   "description": "Use SharedPreference (Android) and UserDefaults (iOS) with React Native over a unified interface",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
