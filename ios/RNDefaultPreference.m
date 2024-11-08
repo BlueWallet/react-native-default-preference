@@ -2,9 +2,6 @@
 #import <React/RCTEventEmitter.h>
 #import <React/RCTBridgeModule.h>
 
-@interface RNDefaultPreference : RCTEventEmitter <RCTBridgeModule>
-@end
-
 @implementation RNDefaultPreference {
     BOOL hasListeners;
 }
