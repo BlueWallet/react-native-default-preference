@@ -9,11 +9,13 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import java.util.Map;
 
 public class RNDefaultPreferenceModule extends ReactContextBaseJavaModule {
     private String preferencesName;
     private final SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
     private final ReactApplicationContext reactContext;
+    private boolean hasListeners = false;  // Flag to track if listeners are active
 
     public RNDefaultPreferenceModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -21,11 +23,11 @@ public class RNDefaultPreferenceModule extends ReactContextBaseJavaModule {
         this.preferencesName = reactContext.getPackageName() + "_preferences";
 
         preferenceChangeListener = (sharedPreferences, key) -> {
-            if (reactContext.hasActiveCatalystInstance()) {
+            if (hasListeners && reactContext.hasActiveCatalystInstance()) {  // Only send events if listeners are active
                 WritableMap changeInfo = Arguments.createMap();
                 changeInfo.putString("key", key);
                 Object value = sharedPreferences.getAll().get(key);
-                
+
                 if (value instanceof String) {
                     changeInfo.putString("value", (String) value);
                 } else if (value instanceof Integer) {
@@ -45,6 +47,7 @@ public class RNDefaultPreferenceModule extends ReactContextBaseJavaModule {
                     .emit("onPreferenceChange", changeInfo);
             }
         };
+
         getPreferences().registerOnSharedPreferenceChangeListener(preferenceChangeListener);
     }
 
@@ -54,48 +57,60 @@ public class RNDefaultPreferenceModule extends ReactContextBaseJavaModule {
     }
 
     @Override
+    public void initialize() {
+        super.initialize();
+        hasListeners = true;  // Mark that listeners are active when the module is initialized
+    }
+
+    @Override
     public void onCatalystInstanceDestroy() {
         super.onCatalystInstanceDestroy();
+        hasListeners = false;  // Mark that no listeners are active when the module is destroyed
         getPreferences().unregisterOnSharedPreferenceChangeListener(preferenceChangeListener);
     }
 
     private SharedPreferences getPreferences() {
         return getReactApplicationContext().getSharedPreferences(preferencesName, Context.MODE_PRIVATE);
-    }}
-
-    private SharedPreferences.Editor getEditor() {
-        return getPreferences().edit();
     }
 
-  private void resolvePreferenceValue(Object value, Promise promise) {
-    if (value instanceof String) {
-      promise.resolve((String) value);
-    } else if (value instanceof Integer) {
-      promise.resolve((Integer) value);
-    } else if (value instanceof Boolean) {
-      promise.resolve((Boolean) value);
-    } else if (value instanceof Float) {
-      promise.resolve((Float) value);
-    } else if (value instanceof Long) {
-      promise.resolve((Long) value);
-    } else {
-      promise.resolve(null);
+    @ReactMethod
+    public void setName(String name, Promise promise) {
+        this.preferencesName = name;
+        promise.resolve(null);
     }
-  }
 
-  private WritableMap resolvePreferenceToMap(String key, Object value) {
-    WritableMap map = Arguments.createMap();
-    if (value instanceof String) {
-      map.putString(key, (String) value);
-    } else if (value instanceof Integer) {
-      map.putInt(key, (Integer) value);
-    } else if (value instanceof Boolean) {
-      map.putBoolean(key, (Boolean) value);
-    } else if (value instanceof Float) {
-      map.putDouble(key, (Float) value);
-    } else if (value instanceof Long) {
-      map.putDouble(key, ((Long) value).doubleValue());
+    @ReactMethod
+    public void getName(Promise promise) {
+        promise.resolve(preferencesName);
     }
-    return map;
-  }
+
+    @ReactMethod
+    public void get(String key, Promise promise) {
+        Object value = getPreferences().getAll().get(key);
+        if (value instanceof String) {
+            promise.resolve((String) value);
+        } else if (value instanceof Integer) {
+            promise.resolve((Integer) value);
+        } else if (value instanceof Boolean) {
+            promise.resolve((Boolean) value);
+        } else if (value instanceof Float) {
+            promise.resolve((Float) value);
+        } else if (value instanceof Long) {
+            promise.resolve((Long) value);
+        } else {
+            promise.resolve(null);
+        }
+    }
+
+    @ReactMethod
+    public void set(String key, String value, Promise promise) {
+        getPreferences().edit().putString(key, value).apply();
+        promise.resolve(null);
+    }
+
+    @ReactMethod
+    public void clear(String key, Promise promise) {
+        getPreferences().edit().remove(key).apply();
+        promise.resolve(null);
+    }
 }
