@@ -1,5 +1,4 @@
 #import "RNDefaultPreference.h"
-#import <React/RCTEventEmitter.h>
 #import <React/RCTBridgeModule.h>
 
 @implementation RNDefaultPreference {
