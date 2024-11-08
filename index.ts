@@ -1,7 +1,6 @@
-import { NativeEventEmitter, NativeModules } from 'react-native';
+import { NativeModules } from 'react-native';
 
 const { RNDefaultPreference } = NativeModules;
-const preferenceEmitter = new NativeEventEmitter(RNDefaultPreference);
 
 export interface RNDefaultPreferenceKeys {
   [key: string]: string | number | boolean | string[] | null;
@@ -46,19 +45,6 @@ class DefaultPreference {
 
   static async setName(name: string): Promise<void> {
     return RNDefaultPreference.setName(name);
-  }
-
-  // Add a listener for preference changes
-  static addPreferenceListener(callback: (key: string, value: any) => void) {
-    const subscription = preferenceEmitter.addListener('onPreferenceChange', (event) => {
-      callback(event.key, event.value);
-    });
-    return subscription;
-  }
-
-  // Remove a previously added listener
-  static removePreferenceListener(subscription: { remove: () => void }): void {
-    subscription.remove();
   }
 }
 

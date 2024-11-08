@@ -7,66 +7,23 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Promise;
-import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
-import java.util.Map;
+import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.ReadableMapKeySetIterator;
 
 public class RNDefaultPreferenceModule extends ReactContextBaseJavaModule {
     private String preferencesName;
-    private final SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
     private final ReactApplicationContext reactContext;
-    private boolean hasListeners = false;  // Flag to track if listeners are active
 
     public RNDefaultPreferenceModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
         this.preferencesName = reactContext.getPackageName() + "_preferences";
-
-        preferenceChangeListener = (sharedPreferences, key) -> {
-            if (hasListeners && reactContext.hasActiveCatalystInstance()) {  // Only send events if listeners are active
-                WritableMap changeInfo = Arguments.createMap();
-                changeInfo.putString("key", key);
-                Object value = sharedPreferences.getAll().get(key);
-
-                if (value instanceof String) {
-                    changeInfo.putString("value", (String) value);
-                } else if (value instanceof Integer) {
-                    changeInfo.putInt("value", (Integer) value);
-                } else if (value instanceof Boolean) {
-                    changeInfo.putBoolean("value", (Boolean) value);
-                } else if (value instanceof Float) {
-                    changeInfo.putDouble("value", ((Float) value).doubleValue());
-                } else if (value instanceof Long) {
-                    changeInfo.putDouble("value", ((Long) value).doubleValue());
-                } else {
-                    changeInfo.putNull("value");
-                }
-
-                reactContext
-                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                    .emit("onPreferenceChange", changeInfo);
-            }
-        };
-
-        getPreferences().registerOnSharedPreferenceChangeListener(preferenceChangeListener);
     }
 
     @Override
     public String getName() {
         return "RNDefaultPreference";
-    }
-
-    @Override
-    public void initialize() {
-        super.initialize();
-        hasListeners = true;  // Mark that listeners are active when the module is initialized
-    }
-
-    @Override
-    public void onCatalystInstanceDestroy() {
-        super.onCatalystInstanceDestroy();
-        hasListeners = false;  // Mark that no listeners are active when the module is destroyed
-        getPreferences().unregisterOnSharedPreferenceChangeListener(preferenceChangeListener);
     }
 
     private SharedPreferences getPreferences() {
@@ -111,6 +68,82 @@ public class RNDefaultPreferenceModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void clear(String key, Promise promise) {
         getPreferences().edit().remove(key).apply();
+        promise.resolve(null);
+    }
+
+    @ReactMethod
+    public void getMultiple(ReadableArray keys, Promise promise) {
+        WritableArray result = Arguments.createArray();
+        for(int i = 0; i < keys.size(); i++) {
+            String key = keys.getString(i);
+            Object value = getPreferences().getAll().get(key);
+            if (value instanceof String) {
+                result.pushString((String) value);
+            } else if (value instanceof Integer) {
+                result.pushInt((Integer) value);
+            } else if (value instanceof Boolean) {
+                result.pushBoolean((Boolean) value);
+            } else if (value instanceof Float) {
+                result.pushDouble((Float) value);
+            } else if (value instanceof Long) {
+                result.pushDouble((Long) value);
+            } else {
+                result.pushNull();
+            }
+        }
+        promise.resolve(result);
+    }
+
+    @ReactMethod
+    public void setMultiple(ReadableMap data, Promise promise) {
+        SharedPreferences.Editor editor = getPreferences().edit();
+        ReadableMapKeySetIterator iter = data.keySetIterator();
+        while(iter.hasNextKey()) {
+            String key = iter.nextKey();
+            editor.putString(key, data.getString(key));
+        }
+        editor.apply();
+        promise.resolve(null);
+    }
+
+    @ReactMethod
+    public void clearMultiple(ReadableArray keys, Promise promise) {
+        SharedPreferences.Editor editor = getPreferences().edit();
+        for(int i = 0; i < keys.size(); i++) {
+            editor.remove(keys.getString(i));
+        }
+        editor.apply();
+        promise.resolve(null);
+    }
+
+    @ReactMethod
+    public void getAll(Promise promise) {
+        WritableMap result = Arguments.createMap();
+        Map<String, ?> allEntries = getPreferences().getAll();
+        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
+            Object value = entry.getValue();
+            if (value instanceof String) {
+                result.putString(entry.getKey(), (String) value);
+            } else if (value instanceof Integer) {
+                result.putInt(entry.getKey(), (Integer) value);
+            } else if (value instanceof Boolean) {
+                result.putBoolean(entry.getKey(), (Boolean) value);
+            } else if (value instanceof Float) {
+                result.putDouble(entry.getKey(), ((Float) value).doubleValue());
+            } else if (value instanceof Long) {
+                result.putDouble(entry.getKey(), ((Long) value).doubleValue());
+            } else {
+                result.putNull(entry.getKey());
+            }
+        }
+        promise.resolve(result);
+    }
+
+    @ReactMethod
+    public void clearAll(Promise promise) {
+        SharedPreferences.Editor editor = getPreferences().edit();
+        editor.clear();
+        editor.apply();
         promise.resolve(null);
     }
 }

@@ -1,9 +1,7 @@
 #import "RNDefaultPreference.h"
 #import <React/RCTBridgeModule.h>
 
-@implementation RNDefaultPreference {
-    BOOL hasListeners;
-}
+@implementation RNDefaultPreference
 
 NSString* defaultSuiteName = nil;
 
@@ -21,57 +19,6 @@ NSString* defaultSuiteName = nil;
 }
 
 RCT_EXPORT_MODULE()
-
-+ (BOOL)requiresMainQueueSetup
-{
-    return YES;
-}
-
-// Implement required method for RCTEventEmitter
-- (NSArray<NSString *> *)supportedEvents
-{
-    return @[@"onPreferenceChange"];
-}
-
-// Called when the first listener is added
-- (void)startObserving {
-    hasListeners = YES;
-}
-
-// Called when the last listener is removed or when the module is deallocated
-- (void)stopObserving {
-    hasListeners = NO;
-}
-
-- (instancetype)init
-{
-    if (self = [super init]) {
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(userDefaultsDidChange:)
-                                                     name:NSUserDefaultsDidChangeNotification
-                                                   object:nil];
-    }
-    return self;
-}
-
-- (void)userDefaultsDidChange:(NSNotification *)notification
-{
-    if (hasListeners) { // Only send events if there are listeners
-        NSUserDefaults *defaults = [self getDefaultUser];
-        NSDictionary *changedKeys = defaults.dictionaryRepresentation;
-
-        for (NSString *key in changedKeys) {
-            id value = [defaults objectForKey:key];
-            NSDictionary *changeInfo = @{@"key": key, @"value": value ?: [NSNull null]};
-            [self sendEventWithName:@"onPreferenceChange" body:changeInfo];
-        }
-    }
-}
-
-- (void)dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
 
 RCT_EXPORT_METHOD(setName:(NSString *)name
                   resolve:(RCTPromiseResolveBlock)resolve
@@ -110,6 +57,60 @@ RCT_EXPORT_METHOD(clear:(NSString *)key
                   reject:(RCTPromiseRejectBlock)reject)
 {
     [[self getDefaultUser] removeObjectForKey:key];
+    resolve([NSNull null]);
+}
+
+RCT_EXPORT_METHOD(getMultiple:(NSArray *)keys
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
+{
+    NSMutableArray *result = [NSMutableArray array];
+    for(NSString *key in keys) {
+        NSString *value = [[self getDefaultUser] stringForKey:key];
+        [result addObject: value == nil ? [NSNull null] : value];
+    }
+    resolve(result);
+}
+
+RCT_EXPORT_METHOD(setMultiple:(NSDictionary *)data
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
+{
+    NSUserDefaults *defaults = [self getDefaultUser];
+    for (NSString *key in data) {
+        [defaults setObject:data[key] forKey:key];
+    }
+    [defaults synchronize];
+    resolve([NSNull null]);
+}
+
+RCT_EXPORT_METHOD(clearMultiple:(NSArray *)keys
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
+{
+    NSUserDefaults *defaults = [self getDefaultUser];
+    for (NSString *key in keys) {
+        [defaults removeObjectForKey:key];
+    }
+    [defaults synchronize];
+    resolve([NSNull null]);
+}
+
+RCT_EXPORT_METHOD(getAll:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
+{
+    NSDictionary *dictionary = [[self getDefaultUser] dictionaryRepresentation];
+    resolve(dictionary);
+}
+
+RCT_EXPORT_METHOD(clearAll:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
+{
+    NSUserDefaults *defaults = [self getDefaultUser];
+    for (NSString *key in [[defaults dictionaryRepresentation] allKeys]) {
+        [defaults removeObjectForKey:key];
+    }
+    [defaults synchronize];
     resolve([NSNull null]);
 }
 
