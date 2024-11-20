@@ -24,7 +24,9 @@ RCT_EXPORT_METHOD(setName:(NSString *)name
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 {
-    defaultSuiteName = name;
+    if (defaultSuiteName == nil) {
+        defaultSuiteName = name;
+    }
     resolve([NSNull null]);
 }
 

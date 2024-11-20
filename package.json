@@ -1,10 +1,10 @@
 {
   "name": "react-native-default-preference",
-  "version": "1.5.0",
-  "description": "Use SharedPreference (Android) and UserDefaults (iOS) with React Native over a unified interface",
+  "version": "1.5.1",
+  "description": "Use DataStore (Android) and UserDefaults (iOS) with React Native over a unified interface",
   "main": "index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -14,13 +14,17 @@
     "react-native",
     "NSUserDefaults",
     "user defaults",
-    "SharedPreferences",
-    "shared preferences"
+    "DataStore",
+    "data store"
   ],
   "author": "kevinresol",
   "license": "MIT",
   "peerDependencies": {
     "react-native": ">=0.47.0"
   },
-  "homepage": "https://github.com/kevinresol/react-native-default-preference#readme"
+  "homepage": "https://github.com/kevinresol/react-native-default-preference#readme",
+  "devDependencies": {
+    "ts-jest": "^27.0.0",
+    "@types/jest": "^27.0.0"
+  }
 }

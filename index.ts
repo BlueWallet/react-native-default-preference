@@ -1,4 +1,4 @@
-import { NativeModules } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 
 const { RNDefaultPreference } = NativeModules;
 
@@ -7,44 +7,73 @@ export interface RNDefaultPreferenceKeys {
 }
 
 class DefaultPreference {
-  static async get(key: string): Promise<string | number | boolean | null> {
-    return RNDefaultPreference.get(key);
+  private readonly name: string;
+
+  constructor(name: string = 'default') {
+    this.name = name;
+    if (name !== 'default') {
+      RNDefaultPreference.setName(name);
+    }
   }
 
-  static async set(key: string, value: string | number | boolean): Promise<void> {
-    return RNDefaultPreference.set(key, value);
+  async get(key: string): Promise<string | number | boolean | null> {
+    if (Platform.OS === 'android') {
+      return RNDefaultPreference.getDataStore(this.name, key);
+    }
+    return RNDefaultPreference.get(this.name, key);
   }
 
-  static async clear(key: string): Promise<void> {
-    return RNDefaultPreference.clear(key);
+  async set(key: string, value: string | number | boolean): Promise<void> {
+    if (Platform.OS === 'android') {
+      return RNDefaultPreference.setDataStore(this.name, key, value);
+    }
+    return RNDefaultPreference.set(this.name, key, value);
   }
 
-  static async getMultiple(keys: string[]): Promise<(string | number | boolean | null)[]> {
-    return RNDefaultPreference.getMultiple(keys);
+  async clear(key: string): Promise<void> {
+    if (Platform.OS === 'android') {
+      return RNDefaultPreference.clearDataStore(this.name, key);
+    }
+    return RNDefaultPreference.clear(this.name, key);
   }
 
-  static async setMultiple(data: RNDefaultPreferenceKeys): Promise<void> {
-    return RNDefaultPreference.setMultiple(data);
+  async getMultiple(keys: string[]): Promise<(string | number | boolean | null)[]> {
+    if (Platform.OS === 'android') {
+      return RNDefaultPreference.getMultipleDataStore(this.name, keys);
+    }
+    return RNDefaultPreference.getMultiple(this.name, keys);
   }
 
-  static async clearMultiple(keys: string[]): Promise<void> {
-    return RNDefaultPreference.clearMultiple(keys);
+  async setMultiple(data: RNDefaultPreferenceKeys): Promise<void> {
+    if (Platform.OS === 'android') {
+      return RNDefaultPreference.setMultipleDataStore(this.name, data);
+    }
+    return RNDefaultPreference.setMultiple(this.name, data);
   }
 
-  static async getAll(): Promise<RNDefaultPreferenceKeys> {
-    return RNDefaultPreference.getAll();
+  async clearMultiple(keys: string[]): Promise<void> {
+    if (Platform.OS === 'android') {
+      return RNDefaultPreference.clearMultipleDataStore(this.name, keys);
+    }
+    return RNDefaultPreference.clearMultiple(this.name, keys);
   }
 
-  static async clearAll(): Promise<void> {
-    return RNDefaultPreference.clearAll();
+  async getAll(): Promise<RNDefaultPreferenceKeys> {
+    if (Platform.OS === 'android') {
+      return RNDefaultPreference.getAllDataStore(this.name);
+    }
+    return RNDefaultPreference.getAll(this.name);
   }
 
-  static async getName(): Promise<string> {
-    return RNDefaultPreference.getName();
+  async clearAll(): Promise<void> {
+    if (Platform.OS === 'android') {
+      return RNDefaultPreference.clearAllDataStore(this.name);
+    }
+    return RNDefaultPreference.clearAll(this.name);
   }
 
-  static async setName(name: string): Promise<void> {
-    return RNDefaultPreference.setName(name);
+  async getName(): Promise<string> {
+    return this.name;
   }
 }
 
