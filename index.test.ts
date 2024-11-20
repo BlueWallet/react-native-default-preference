@@ -1,4 +1,4 @@
-import { NativeModules } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 import DefaultPreference from './index';
 
 const mockDefaultPreference = require('./__mocks__/react-native-default-preference');
@@ -20,22 +20,20 @@ jest.mock('react-native', () => {
         clearMultiple: mockDefaultPreference.clearMultiple,
         getAll: mockDefaultPreference.getAll,
         clearAll: mockDefaultPreference.clearAll,
-        setDataStore: mockDefaultPreference.setDataStore,
-        clearDataStore: mockDefaultPreference.clearDataStore,
-        getMultipleDataStore: mockDefaultPreference.getMultipleDataStore,
-        setMultipleDataStore: mockDefaultPreference.setMultipleDataStore,
-        clearMultipleDataStore: mockDefaultPreference.clearMultipleDataStore,
-        getAllDataStore: mockDefaultPreference.getAllDataStore,
-        clearAllDataStore: mockDefaultPreference.clearAllDataStore,
       },
     },
     Platform: {
-      OS: 'ios',
+      OS: 'ios', // Default to iOS; will override in tests
     },
   };
 });
 
-describe('DefaultPreference', () => {
+describe.each(['ios', 'android'])('DefaultPreference on %s', (platform) => {
+  beforeAll(() => {
+    // Override Platform.OS for each test suite
+    (Platform as any).OS = platform;
+  });
+
   let defaultPref: DefaultPreference;
 
   beforeEach(() => {
