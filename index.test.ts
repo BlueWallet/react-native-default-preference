@@ -136,7 +136,7 @@ describe.each(['ios', 'android'])('DefaultPreference on %s', (platform) => {
 
     // Act
     await DefaultPreference.setGroupName(currentGroupName);
-    const groupName = await DefaultPreference.getGroupName();
+    const groupName = await DefaultPreference.getName();
 
     // Assert
     expect(RNDefaultPreference.setName).toHaveBeenCalledWith(currentGroupName);

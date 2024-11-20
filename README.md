@@ -50,7 +50,6 @@ DefaultPreference.set('my key', 'my value').then(function() {console.log('done')
 ```
 
 ## API
-
 ```typescript
 function get(key: string): Promise<string | undefined | null>;
 function set(key: string, value: string): Promise<void>;

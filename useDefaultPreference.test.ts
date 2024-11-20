@@ -14,12 +14,12 @@ describe('useDefaultPreference', () => {
   const mockClearMultiple = jest.fn();
   const mockGetAll = jest.fn();
   const mockClearAll = jest.fn();
-  const mockGetGroupName = jest.fn();
+  const mockgetName = jest.fn();
 
   beforeEach(() => {
     (DefaultPreference as unknown as jest.Mock).mockImplementation(() => ({
       setGroupName: mockSetName, // Updated mock method
-      getGroupName: mockGetGroupName, // Added mock method
+      getName: mockgetName, // Added mock method
       get: mockGet,
       set: mockSet,
       clear: mockClear,
@@ -56,17 +56,17 @@ describe('useDefaultPreference', () => {
   it('should retrieve the current group name', async () => {
     // Arrange
     const currentGroupName = 'testGroup';
-    mockGetGroupName.mockResolvedValue(currentGroupName);
+    mockgetName.mockResolvedValue(currentGroupName);
 
     // Act
     const { result, waitForNextUpdate } = renderHook(() => useDefaultPreference());
 
     // Assuming the hook exposes a method to get the group name
     // If not, this test should be adjusted based on the hook's implementation
-    const groupName = await DefaultPreference.getGroupName();
+    const groupName = await DefaultPreference.getName();
 
     // Assert
-    expect(mockGetGroupName).toHaveBeenCalled();
+    expect(mockgetName).toHaveBeenCalled();
     expect(groupName).toBe(currentGroupName);
   });
 

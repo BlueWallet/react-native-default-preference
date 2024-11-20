@@ -7,9 +7,9 @@ export interface RNDefaultPreferenceKeys {
 }
 
 class DefaultPreference {
-  private static groupName: string = 'default'; // Renamed from 'name' to 'groupName'
+  private static groupName: string = 'default';
 
-  static setGroupName(name: string = 'default') { // Renamed method
+  static setName(name: string = 'default') {
     DefaultPreference.groupName = name;
     if (name !== 'default') {
       RNDefaultPreference.setName(name);
@@ -48,7 +48,7 @@ class DefaultPreference {
     return RNDefaultPreference.clearAll(DefaultPreference.groupName);
   }
 
-  static async getGroupName(): Promise<string> { // Renamed method
+  static async getName(): Promise<string> {
     return DefaultPreference.groupName;
   }
 }
