@@ -7,49 +7,49 @@ export interface RNDefaultPreferenceKeys {
 }
 
 class DefaultPreference {
-  private readonly name: string;
+  private static groupName: string = 'default'; // Renamed from 'name' to 'groupName'
 
-  constructor(name: string = 'default') {
-    this.name = name;
+  static setGroupName(name: string = 'default') { // Renamed method
+    DefaultPreference.groupName = name;
     if (name !== 'default') {
       RNDefaultPreference.setName(name);
     }
   }
 
-  async get(key: string): Promise<string | number | boolean | null> {
-    return RNDefaultPreference.get(this.name, key);
+  static async get(key: string): Promise<string | number | boolean | null> {
+    return RNDefaultPreference.get(DefaultPreference.groupName, key);
   }
 
-  async set(key: string, value: string | number | boolean): Promise<void> {
-    return RNDefaultPreference.set(this.name, key, value);
+  static async set(key: string, value: string | number | boolean): Promise<void> {
+    return RNDefaultPreference.set(DefaultPreference.groupName, key, value);
   }
 
-  async clear(key: string): Promise<void> {
-    return RNDefaultPreference.clear(this.name, key);
+  static async clear(key: string): Promise<void> {
+    return RNDefaultPreference.clear(DefaultPreference.groupName, key);
   }
 
-  async getMultiple(keys: string[]): Promise<(string | number | boolean | null)[]> {
-    return RNDefaultPreference.getMultiple(this.name, keys);
+  static async getMultiple(keys: string[]): Promise<(string | number | boolean | null)[]> {
+    return RNDefaultPreference.getMultiple(DefaultPreference.groupName, keys);
   }
 
-  async setMultiple(data: RNDefaultPreferenceKeys): Promise<void> {
-    return RNDefaultPreference.setMultiple(this.name, data);
+  static async setMultiple(data: RNDefaultPreferenceKeys): Promise<void> {
+    return RNDefaultPreference.setMultiple(DefaultPreference.groupName, data);
   }
 
-  async clearMultiple(keys: string[]): Promise<void> {
-    return RNDefaultPreference.clearMultiple(this.name, keys);
+  static async clearMultiple(keys: string[]): Promise<void> {
+    return RNDefaultPreference.clearMultiple(DefaultPreference.groupName, keys);
   }
 
-  async getAll(): Promise<RNDefaultPreferenceKeys> {
-    return RNDefaultPreference.getAll(this.name);
+  static async getAll(): Promise<RNDefaultPreferenceKeys> {
+    return RNDefaultPreference.getAll(DefaultPreference.groupName);
   }
 
-  async clearAll(): Promise<void> {
-    return RNDefaultPreference.clearAll(this.name);
+  static async clearAll(): Promise<void> {
+    return RNDefaultPreference.clearAll(DefaultPreference.groupName);
   }
 
-  async getName(): Promise<string> {
-    return this.name;
+  static async getGroupName(): Promise<string> { // Renamed method
+    return DefaultPreference.groupName;
   }
 }
 

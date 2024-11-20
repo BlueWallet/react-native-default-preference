@@ -23,13 +23,13 @@ import java.util.Map;
 public class RNDefaultPreferenceModule extends ReactContextBaseJavaModule {
     private String preferencesName;
     private final ReactApplicationContext reactContext;
-    private final DataStore<Preferences> dataStore;
+    private DataStore<Preferences> dataStore;
 
     public RNDefaultPreferenceModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
         this.preferencesName = reactContext.getPackageName() + "_preferences";
-        this.dataStore = reactContext.createDataStore(name = preferencesName);
+        this.dataStore = reactContext.createDataStore(preferencesName); // Corrected method call
     }
 
     @Override

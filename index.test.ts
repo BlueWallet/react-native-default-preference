@@ -34,90 +34,112 @@ describe.each(['ios', 'android'])('DefaultPreference on %s', (platform) => {
     (Platform as any).OS = platform;
   });
 
-  let defaultPref: DefaultPreference;
-
   beforeEach(() => {
     jest.clearAllMocks();
-    // Reset mockPreferences by clearing all data for 'default' suite
+    mockDefaultPreference.reset(); // Reset all mock preferences
     RNDefaultPreference.clearAll('default');
-    defaultPref = new DefaultPreference();
   });
 
   it('should set and get a value for the default instance', async () => {
-    await defaultPref.set('key1', 'value1');
-    const value = await defaultPref.get('key1');
+    await DefaultPreference.set('key1', 'value1');
+    const value = await DefaultPreference.get('key1');
     expect(value).toBe('value1');
   });
 
   it('should set and get a value for the group instance', async () => {
-    const groupPref = new DefaultPreference('group.reactnative.example');
-    await groupPref.set('key1', 'value1');
-    const value = await groupPref.get('key1');
+    await DefaultPreference.setGroupName('group.reactnative.example');
+    await DefaultPreference.set('key1', 'value1');
+    const value = await DefaultPreference.get('key1');
     expect(value).toBe('value1');
   });
 
   it('should clear a value for the default instance', async () => {
-    await defaultPref.set('key2', 'value2');
-    await defaultPref.clear('key2');
-    const value = await defaultPref.get('key2');
+    await DefaultPreference.set('key2', 'value2');
+    await DefaultPreference.clear('key2');
+    const value = await DefaultPreference.get('key2');
     expect(value).toBeNull();
   });
 
   it('should clear a value for the group instance', async () => {
-    const groupPref = new DefaultPreference('group.reactnative.example');
-    await groupPref.set('key2', 'value2');
-    await groupPref.clear('key2');
-    const value = await groupPref.get('key2');
+    await DefaultPreference.setGroupName('group.reactnative.example');
+    await DefaultPreference.set('key2', 'value2');
+    await DefaultPreference.clear('key2');
+    const value = await DefaultPreference.get('key2');
     expect(value).toBeNull();
   });
 
   it('should set and get multiple values for the default instance', async () => {
     const data = { key3: 'value3', key4: 'value4' };
-    await defaultPref.setMultiple(data);
-    const values = await defaultPref.getMultiple(['key3', 'key4']);
+    await DefaultPreference.setMultiple(data);
+    const values = await DefaultPreference.getMultiple(['key3', 'key4']);
     expect(values).toEqual(['value3', 'value4']);
   });
 
   it('should clear multiple values for the default instance', async () => {
     const data = { key5: 'value5', key6: 'value6' };
-    await defaultPref.setMultiple(data);
-    await defaultPref.clearMultiple(['key5', 'key6']);
-    const values = await defaultPref.getMultiple(['key5', 'key6']);
+    await DefaultPreference.setMultiple(data);
+    await DefaultPreference.clearMultiple(['key5', 'key6']);
+    const values = await DefaultPreference.getMultiple(['key5', 'key6']);
     expect(values).toEqual([null, null]);
   });
 
   it('should get all values for the default instance', async () => {
     const data = { key7: 'value7', key8: 'value8' };
-    await defaultPref.setMultiple(data);
-    const allValues = await defaultPref.getAll();
+    await DefaultPreference.setMultiple(data);
+    const allValues = await DefaultPreference.getAll();
     expect(allValues).toEqual(data);
   });
 
   it('should clear all values for the default instance', async () => {
     const data = { key9: 'value9', key10: 'value10' };
-    await defaultPref.setMultiple(data);
-    await defaultPref.clearAll();
-    const allValues = await defaultPref.getAll();
+    await DefaultPreference.setMultiple(data);
+    await DefaultPreference.clearAll();
+    const allValues = await DefaultPreference.getAll();
     expect(allValues).toEqual({});
   });
 
   it('should not set the name if no name is provided', () => {
-    const instance = new DefaultPreference();
     expect(RNDefaultPreference.setName).not.toHaveBeenCalled();
   });
 
-  it('should set the name if a name is provided', () => {
-    const instance = new DefaultPreference('group.reactnative.example');
+  it('should set the name if a name is provided', async () => {
+    await DefaultPreference.setGroupName('group.reactnative.example');
     expect(RNDefaultPreference.setName).toHaveBeenCalledWith('group.reactnative.example');
   });
 
   it('should not call setName if name is default', () => {
-    new DefaultPreference();
     expect(RNDefaultPreference.setName).not.toHaveBeenCalled();
   });
 
-  it('should call setName if name is not default', () => {
-    new DefaultPreference('customName');
+  it('should call setName if name is not default', async () => {
+    await DefaultPreference.setGroupName('customName');
     expect(RNDefaultPreference.setName).toHaveBeenCalledWith('customName');
+  });
+
+  it('should handle multiple group names correctly', async () => {
+    await DefaultPreference.setGroupName('group1');
+    await DefaultPreference.set('key1', 'value1');
+    const value1 = await DefaultPreference.get('key1');
+
+    await DefaultPreference.setGroupName('group2');
+    await DefaultPreference.set('key1', 'value2');
+    const value2 = await DefaultPreference.get('key1');
+
+    expect(value1).toBe('value1');
+    expect(value2).toBe('value2');
+  });
+
+  it('should get the current group name', async () => {
+    // Arrange
+    const currentGroupName = 'testGroup';
+    mockDefaultPreference.getName.mockResolvedValue(currentGroupName);
+
+    // Act
+    await DefaultPreference.setGroupName(currentGroupName);
+    const groupName = await DefaultPreference.getGroupName();
+
+    // Assert
+    expect(RNDefaultPreference.setName).toHaveBeenCalledWith(currentGroupName);
+    expect(groupName).toBe(currentGroupName);
   });
 });

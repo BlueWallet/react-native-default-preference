@@ -1,39 +1,41 @@
-import { useMemo } from 'react';
+import { useEffect } from 'react';
 import DefaultPreference from './index';
 
 const useDefaultPreference = (groupName: string = 'default') => {
-  const preference = useMemo(() => new DefaultPreference(groupName), [groupName]);
+  useEffect(() => {
+    DefaultPreference.setName(groupName);
+  }, [groupName]);
 
   const getPreference = async (key: string) => {
-    return await preference.get(key);
+    return await DefaultPreference.get(key);
   };
 
   const setPreference = async (key: string, value: string | number | boolean) => {
-    await preference.set(key, value);
+    await DefaultPreference.set(key, value);
   };
 
   const clearPreference = async (key: string) => {
-    await preference.clear(key);
+    await DefaultPreference.clear(key);
   };
 
   const getMultiplePreferences = async (keys: string[]) => {
-    return await preference.getMultiple(keys);
+    return await DefaultPreference.getMultiple(keys);
   };
 
   const setMultiplePreferences = async (data: { [key: string]: string | number | boolean }) => {
-    await preference.setMultiple(data);
+    await DefaultPreference.setMultiple(data);
   };
 
   const clearMultiplePreferences = async (keys: string[]) => {
-    await preference.clearMultiple(keys);
+    await DefaultPreference.clearMultiple(keys);
   };
 
   const getAllPreferences = async () => {
-    return await preference.getAll();
+    return await DefaultPreference.getAll();
   };
 
   const clearAllPreferences = async () => {
-    await preference.clearAll();
+    await DefaultPreference.clearAll();
   };
 
   return {

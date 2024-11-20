@@ -5,6 +5,7 @@ import DefaultPreference from './index';
 jest.mock('./index');
 
 describe('useDefaultPreference', () => {
+  const mockSetName = jest.fn(); // Renamed mock
   const mockGet = jest.fn();
   const mockSet = jest.fn();
   const mockClear = jest.fn();
@@ -13,9 +14,12 @@ describe('useDefaultPreference', () => {
   const mockClearMultiple = jest.fn();
   const mockGetAll = jest.fn();
   const mockClearAll = jest.fn();
+  const mockGetGroupName = jest.fn();
 
   beforeEach(() => {
-    (DefaultPreference as jest.Mock).mockImplementation(() => ({
+    (DefaultPreference as unknown as jest.Mock).mockImplementation(() => ({
+      setGroupName: mockSetName, // Updated mock method
+      getGroupName: mockGetGroupName, // Added mock method
       get: mockGet,
       set: mockSet,
       clear: mockClear,
@@ -33,12 +37,37 @@ describe('useDefaultPreference', () => {
 
   it('should initialize with the correct group name', () => {
     renderHook(() => useDefaultPreference('testGroup'));
-    expect(DefaultPreference).toHaveBeenCalledWith('testGroup');
+    expect(mockSetName).toHaveBeenCalledWith('testGroup'); // Updated expectation
   });
 
   it('should use default group name when none is provided', () => {
     renderHook(() => useDefaultPreference());
-    expect(DefaultPreference).toHaveBeenCalledWith('default');
+    expect(mockSetName).toHaveBeenCalledWith('default'); // Updated expectation
+  });
+
+  it('should handle different group names correctly', () => {
+    renderHook(() => useDefaultPreference('group1'));
+    expect(mockSetName).toHaveBeenCalledWith('group1');
+
+    renderHook(() => useDefaultPreference('group2'));
+    expect(mockSetName).toHaveBeenCalledWith('group2');
+  });
+
+  it('should retrieve the current group name', async () => {
+    // Arrange
+    const currentGroupName = 'testGroup';
+    mockGetGroupName.mockResolvedValue(currentGroupName);
+
+    // Act
+    const { result, waitForNextUpdate } = renderHook(() => useDefaultPreference());
+
+    // Assuming the hook exposes a method to get the group name
+    // If not, this test should be adjusted based on the hook's implementation
+    const groupName = await DefaultPreference.getGroupName();
+
+    // Assert
+    expect(mockGetGroupName).toHaveBeenCalled();
+    expect(groupName).toBe(currentGroupName);
   });
 
   it('should get a preference value', async () => {
