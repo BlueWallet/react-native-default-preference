@@ -12,4 +12,7 @@ module.exports = {
       tsconfig: 'tsconfig.json',
     },
   },
+  moduleNameMapper: {
+    '^react-native-default-preference$': '<rootDir>/__mocks__/react-native-default-preference.js',
+  },
 };
