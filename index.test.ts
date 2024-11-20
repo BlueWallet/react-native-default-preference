@@ -37,7 +37,7 @@ describe.each(['ios', 'android'])('DefaultPreference on %s', (platform) => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockDefaultPreference.reset(); // Reset all mock preferences
-    RNDefaultPreference.clearAll('default');
+    RNDefaultPreference.clearAll(); 
   });
 
   it('should set and get a value for the default instance', async () => {
@@ -47,7 +47,7 @@ describe.each(['ios', 'android'])('DefaultPreference on %s', (platform) => {
   });
 
   it('should set and get a value for the group instance', async () => {
-    await DefaultPreference.setGroupName('group.reactnative.example');
+    await DefaultPreference.setName('group.reactnative.example');
     await DefaultPreference.set('key1', 'value1');
     const value = await DefaultPreference.get('key1');
     expect(value).toBe('value1');
@@ -61,7 +61,7 @@ describe.each(['ios', 'android'])('DefaultPreference on %s', (platform) => {
   });
 
   it('should clear a value for the group instance', async () => {
-    await DefaultPreference.setGroupName('group.reactnative.example');
+    await DefaultPreference.setName('group.reactnative.example');
     await DefaultPreference.set('key2', 'value2');
     await DefaultPreference.clear('key2');
     const value = await DefaultPreference.get('key2');
@@ -103,7 +103,7 @@ describe.each(['ios', 'android'])('DefaultPreference on %s', (platform) => {
   });
 
   it('should set the name if a name is provided', async () => {
-    await DefaultPreference.setGroupName('group.reactnative.example');
+    await DefaultPreference.setName('group.reactnative.example');
     expect(RNDefaultPreference.setName).toHaveBeenCalledWith('group.reactnative.example');
   });
 
@@ -112,16 +112,16 @@ describe.each(['ios', 'android'])('DefaultPreference on %s', (platform) => {
   });
 
   it('should call setName if name is not default', async () => {
-    await DefaultPreference.setGroupName('customName');
+    await DefaultPreference.setName('customName');
     expect(RNDefaultPreference.setName).toHaveBeenCalledWith('customName');
   });
 
   it('should handle multiple group names correctly', async () => {
-    await DefaultPreference.setGroupName('group1');
+    await DefaultPreference.setName('group1');
     await DefaultPreference.set('key1', 'value1');
     const value1 = await DefaultPreference.get('key1');
 
-    await DefaultPreference.setGroupName('group2');
+    await DefaultPreference.setName('group2');
     await DefaultPreference.set('key1', 'value2');
     const value2 = await DefaultPreference.get('key1');
 
@@ -135,7 +135,7 @@ describe.each(['ios', 'android'])('DefaultPreference on %s', (platform) => {
     mockDefaultPreference.getName.mockResolvedValue(currentGroupName);
 
     // Act
-    await DefaultPreference.setGroupName(currentGroupName);
+    await DefaultPreference.setName(currentGroupName);
     const groupName = await DefaultPreference.getName();
 
     // Assert

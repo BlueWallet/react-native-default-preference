@@ -57,8 +57,8 @@ public class RNDefaultPreferenceModule extends ReactContextBaseJavaModule {
             Preferences preferences = dataStore.data.first();
             Preferences.Key<String> stringKey = PreferencesKeys.stringKey(key);
             Preferences.Key<Boolean> booleanKey = PreferencesKeys.booleanKey(key);
-            String stringValue = preferences[stringKey];
-            Boolean booleanValue = preferences[booleanKey];
+            String stringValue = preferences.get(stringKey);
+            Boolean booleanValue = preferences.get(booleanKey);
             if (stringValue != null) {
                 promise.resolve(stringValue);
             } else if (booleanValue != null) {

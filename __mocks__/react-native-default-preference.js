@@ -16,58 +16,57 @@ const DefaultPreference = {
     return Promise.resolve();
   }),
   
-  getName: jest.fn((name) => {
-    return Promise.resolve(name || 'default'); // Return provided name or 'default'
+  getName: jest.fn(() => {
+    return Promise.resolve('default');
   }),
 
-  get: jest.fn((name, key) => {
-    const suite = getSuite(name || 'default');
+  get: jest.fn((key) => {
+    const suite = getSuite('default');
     return Promise.resolve(suite.hasOwnProperty(key) ? suite[key] : null);
   }),
 
-  set: jest.fn((name, key, value) => {
-    const suite = getSuite(name || 'default');
+  set: jest.fn((key, value) => {
+    const suite = getSuite('default');
     suite[key] = value;
     return Promise.resolve();
   }),
 
-  clear: jest.fn((name, key) => {
-    const suite = getSuite(name || 'default');
+  clear: jest.fn((key) => {
+    const suite = getSuite('default');
     delete suite[key];
     return Promise.resolve();
   }),
 
-  getMultiple: jest.fn((name, keys) => {
-    const suite = getSuite(name || 'default');
+  getMultiple: jest.fn((keys) => {
+    const suite = getSuite('default');
     const values = keys.map(key => (suite.hasOwnProperty(key) ? suite[key] : null));
     return Promise.resolve(values);
   }),
 
-  setMultiple: jest.fn((name, keyValuePairs) => {
-    const suite = getSuite(name || 'default');
+  setMultiple: jest.fn((keyValuePairs) => {
+    const suite = getSuite('default');
     Object.entries(keyValuePairs).forEach(([key, value]) => {
       suite[key] = value;
     });
     return Promise.resolve();
   }),
 
-  clearMultiple: jest.fn((name, keys) => {
-    const suite = getSuite(name || 'default');
+  clearMultiple: jest.fn((keys) => {
+    const suite = getSuite('default');
     keys.forEach(key => delete suite[key]);
     return Promise.resolve();
   }),
 
-  getAll: jest.fn((name) => {
-    const suite = getSuite(name || 'default');
+  getAll: jest.fn(() => {
+    const suite = getSuite('default');
     return Promise.resolve({ ...suite });
   }),
 
-  clearAll: jest.fn((name) => {
-    mockPreferences[name || 'default'] = {};
+  clearAll: jest.fn(() => {
+    mockPreferences['default'] = {};
     return Promise.resolve();
   }),
 
-  // Add reset method to clear all suites
   reset: jest.fn(() => {
     mockPreferences = {};
   }),
