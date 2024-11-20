@@ -72,4 +72,6 @@ const DefaultPreference = {
   }),
 };
 
-module.exports = DefaultPreference;
+module.exports = {
+  default: DefaultPreference,
+};
